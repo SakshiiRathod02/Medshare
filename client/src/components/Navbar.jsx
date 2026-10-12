@@ -102,6 +102,15 @@ export default function Navbar({
     setLangDropdownOpen(false);
   };
 
+  const handleEditServerIp = () => {
+    const current = localStorage.getItem('medshare_api_base') || 'http://192.168.1.2:5000';
+    const newIp = window.prompt('Enter Backend Server URL (e.g. http://192.168.1.2:5000):', current);
+    if (newIp && newIp.trim()) {
+      localStorage.setItem('medshare_api_base', newIp.trim().replace(/\/+$/, ''));
+      window.location.reload();
+    }
+  };
+
   const role = user?.role || 'guest';
 
   return (
@@ -422,6 +431,22 @@ export default function Navbar({
                           {user?.email === acc.email && <CheckCircle className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" />}
                         </button>
                       ))}
+                    </div>
+                  </div>
+
+                  <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-800 text-[11px]">
+                    <div className="flex items-center justify-between text-slate-400 font-semibold mb-1">
+                      <span>Server IP (For Phone)</span>
+                      <button
+                        type="button"
+                        onClick={handleEditServerIp}
+                        className="text-teal-600 dark:text-teal-400 font-bold hover:underline"
+                      >
+                        Edit IP
+                      </button>
+                    </div>
+                    <div className="font-mono text-[10px] text-slate-500 truncate">
+                      {localStorage.getItem('medshare_api_base') || 'http://192.168.1.2:5000'}
                     </div>
                   </div>
 
