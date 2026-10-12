@@ -1,5 +1,5 @@
 {
-  "appId": "com.medshare.app",
+  "appId": "org.medshare.donation",
   "appName": "MedShare",
   "webDir": "client/dist",
   "server": {
