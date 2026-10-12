@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Search, ShieldCheck, AlertTriangle, Upload, Calendar, PackageCheck, Thermometer, CheckCircle2, Info } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export default function DonationFormModal({ isOpen, onClose, onDonationCreated }) {
+export default function DonationFormModal({ isOpen, onClose, onDonationCreated, prefillData }) {
   const { user, token } = useAuth();
 
   // Search & Selected Medicine
@@ -27,6 +27,21 @@ export default function DonationFormModal({ isOpen, onClose, onDonationCreated }
   const [successMessage, setSuccessMessage] = useState(null);
 
   const fileInputRef = useRef(null);
+
+  // Handle prefill data when modal opens
+  useEffect(() => {
+    if (isOpen && prefillData) {
+      if (prefillData.medicine_name) {
+        setSearchTerm(prefillData.medicine_name);
+      }
+      if (prefillData.expiry_date) {
+        setExpiryDate(prefillData.expiry_date);
+      }
+      if (prefillData.quantity) {
+        setQuantity(String(prefillData.quantity));
+      }
+    }
+  }, [isOpen, prefillData]);
 
   // Autocomplete fetch
   useEffect(() => {

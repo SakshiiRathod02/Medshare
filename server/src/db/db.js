@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const Database = require('better-sqlite3');
 const config = require('../config');
 
 // Ensure data directory exists
@@ -15,15 +14,31 @@ if (!fs.existsSync(config.UPLOAD_DIR)) {
 }
 
 let dbInstance = null;
+let isNativeSqlite = false;
 
 function getDb() {
   if (dbInstance) return dbInstance;
 
   try {
-    dbInstance = new Database(config.DB_FILE);
-    dbInstance.pragma('foreign_keys = ON');
-    dbInstance.pragma('journal_mode = WAL');
-    return dbInstance;
+    // 1. Prefer Node.js 22+ built-in node:sqlite (zero external compilation/node-gyp needed)
+    try {
+      const { DatabaseSync } = require('node:sqlite');
+      dbInstance = new DatabaseSync(config.DB_FILE);
+      dbInstance.exec('PRAGMA foreign_keys = ON;');
+      dbInstance.exec('PRAGMA journal_mode = WAL;');
+      isNativeSqlite = true;
+      console.log('[DB] Using Node.js native built-in SQLite engine');
+      return dbInstance;
+    } catch (nativeErr) {
+      // 2. Fallback to better-sqlite3 if available
+      const BetterSqlite = require('better-sqlite3');
+      dbInstance = new BetterSqlite(config.DB_FILE);
+      dbInstance.pragma('foreign_keys = ON');
+      dbInstance.pragma('journal_mode = WAL');
+      isNativeSqlite = false;
+      console.log('[DB] Using better-sqlite3 engine');
+      return dbInstance;
+    }
   } catch (error) {
     console.error('Failed to initialize SQLite database:', error);
     throw error;
@@ -45,7 +60,17 @@ function execScript(sql) {
 function run(sql, params = []) {
   const db = getDb();
   const stmt = db.prepare(sql);
-  return stmt.run(params);
+  const paramArray = Array.isArray(params) ? params : [params];
+
+  if (isNativeSqlite) {
+    const res = stmt.run(...paramArray);
+    return {
+      changes: res.changes,
+      lastInsertRowid: Number(res.lastInsertRowid)
+    };
+  } else {
+    return stmt.run(...paramArray);
+  }
 }
 
 /**
@@ -54,7 +79,13 @@ function run(sql, params = []) {
 function get(sql, params = []) {
   const db = getDb();
   const stmt = db.prepare(sql);
-  return stmt.get(params);
+  const paramArray = Array.isArray(params) ? params : [params];
+
+  if (isNativeSqlite) {
+    return stmt.get(...paramArray);
+  } else {
+    return stmt.get(...paramArray);
+  }
 }
 
 /**
@@ -63,7 +94,13 @@ function get(sql, params = []) {
 function all(sql, params = []) {
   const db = getDb();
   const stmt = db.prepare(sql);
-  return stmt.all(params);
+  const paramArray = Array.isArray(params) ? params : [params];
+
+  if (isNativeSqlite) {
+    return stmt.all(...paramArray);
+  } else {
+    return stmt.all(...paramArray);
+  }
 }
 
 /**
@@ -71,7 +108,24 @@ function all(sql, params = []) {
  */
 function transaction(fn) {
   const db = getDb();
-  return db.transaction(fn);
+  if (!isNativeSqlite && typeof db.transaction === 'function') {
+    return db.transaction(fn);
+  }
+
+  // Pure SQL transaction wrapper for node:sqlite
+  return (...args) => {
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      const result = fn(...args);
+      db.exec('COMMIT');
+      return result;
+    } catch (err) {
+      try {
+        db.exec('ROLLBACK');
+      } catch (_) {}
+      throw err;
+    }
+  };
 }
 
 /**

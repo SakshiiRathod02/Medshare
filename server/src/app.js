@@ -10,6 +10,11 @@ const requestRoutes = require('./routes/requestRoutes');
 const handoverRoutes = require('./routes/handoverRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const auditRoutes = require('./routes/auditRoutes');
+const urgentNeedRoutes = require('./routes/urgentNeedRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
+const disposalRoutes = require('./routes/disposalRoutes');
+const impactRoutes = require('./routes/impactRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const { getPublicTrail } = require('./controllers/handoverController');
 
 const app = express();
@@ -50,6 +55,11 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/handovers', handoverRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/audit-events', auditRoutes);
+app.use('/api/urgent-needs', urgentNeedRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/disposal', disposalRoutes);
+app.use('/api/impact', impactRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 Handler for undefined routes
 app.use('/api/*', (req, res) => {

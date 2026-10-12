@@ -166,7 +166,7 @@ describe('MedShare End-to-End Happy Path Flow', () => {
     const verification = db.get('SELECT * FROM verifications WHERE donation_id = ?', [donation.id]);
     assert.ok(verification, 'Verification attached');
 
-    const audits = db.all('SELECT action FROM audit_events WHERE entity_type = "donation" AND entity_id = ?', [donation.id]);
+    const audits = db.all("SELECT action FROM audit_events WHERE entity_type = 'donation' AND entity_id = ?", [donation.id]);
     const actions = audits.map(a => a.action);
     assert.ok(actions.includes('VERIFIED_APPROVED'), 'Audit has verified');
     assert.ok(actions.includes('COMPLETED'), 'Audit has completed');

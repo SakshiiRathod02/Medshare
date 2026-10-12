@@ -1,6 +1,7 @@
 const app = require('./app');
 const config = require('./config');
 const db = require('./db/db');
+const { startExpiryCron } = require('./cron/expiryJob');
 
 // Ensure DB schema is ready
 try {
@@ -14,6 +15,13 @@ try {
   }
 } catch (error) {
   console.error('[Startup] Database initialization error:', error);
+}
+
+// Start Expiry Management node-cron Scheduler
+try {
+  startExpiryCron();
+} catch (cronErr) {
+  console.error('[Startup] Cron scheduler initialization error:', cronErr);
 }
 
 const server = app.listen(config.PORT, () => {
