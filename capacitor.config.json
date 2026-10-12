@@ -4,6 +4,6 @@
   "webDir": "client/dist",
   "server": {
     "cleartext": true,
-    "androidScheme": "https"
+    "androidScheme": "http"
   }
 }

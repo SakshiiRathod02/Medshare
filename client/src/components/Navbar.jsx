@@ -375,6 +375,18 @@ export default function Navbar({
               {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
 
+            {/* Server IP Config Quick Button */}
+            <button
+              onClick={handleEditServerIp}
+              className="px-2 py-1.5 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 hover:bg-teal-100 text-[11px] font-semibold flex items-center space-x-1"
+              title="Configure Backend Server IP"
+            >
+              <span>🌐</span>
+              <span className="font-mono text-[10px] max-w-[110px] truncate">
+                {(localStorage.getItem('medshare_api_base') || '192.168.1.2:5000').replace(/^https?:\/\//, '')}
+              </span>
+            </button>
+
             {/* Profile & Demo Switcher Dropdown */}
             <div className="relative">
               <button

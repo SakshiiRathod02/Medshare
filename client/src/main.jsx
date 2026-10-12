@@ -5,26 +5,40 @@ import './index.css'
 import './i18n.js'
 import App from './App.jsx'
 
-// API base URL configuration:
-// In browser development, relative paths (/api) use Vite's dev proxy to localhost:5000.
-// In native Android/Capacitor, requests use VITE_API_BASE_URL (or the host machine Wi-Fi IP).
-const configuredBase = import.meta.env.VITE_API_BASE_URL || '';
-const storedBase = typeof localStorage !== 'undefined' ? localStorage.getItem('medshare_api_base') : null;
+// Robust API Base Routing for Mobile APK & Web
 const defaultPhoneIp = 'http://192.168.1.2:5000';
-const apiBase = storedBase || configuredBase || (Capacitor.isNativePlatform() ? defaultPhoneIp : '');
 
-if (apiBase || Capacitor.isNativePlatform()) {
-  const originalFetch = window.fetch;
-  window.fetch = (input, init) => {
-    if (typeof input === 'string') {
-      if (input.startsWith('/api') || input.startsWith('/uploads')) {
-        const activeBase = (typeof localStorage !== 'undefined' && localStorage.getItem('medshare_api_base')) || apiBase || defaultPhoneIp;
-        input = `${activeBase}${input}`;
+const originalFetch = window.fetch;
+window.fetch = async (input, init) => {
+  let targetUrl = input;
+  const isViteDev = window.location.port === '5173';
+  const storedBase = typeof localStorage !== 'undefined' ? localStorage.getItem('medshare_api_base') : null;
+  const activeBase = (storedBase || (!isViteDev ? defaultPhoneIp : '')).replace(/\/+$/, '');
+
+  if (typeof input === 'string') {
+    if (input.startsWith('/api') || input.startsWith('/uploads')) {
+      if (activeBase) {
+        targetUrl = `${activeBase}${input}`;
       }
     }
-    return originalFetch(input, init);
-  };
-}
+  } else if (input instanceof Request) {
+    const url = new URL(input.url);
+    if ((url.pathname.startsWith('/api') || url.pathname.startsWith('/uploads')) && activeBase) {
+      targetUrl = new Request(`${activeBase}${url.pathname}${url.search}`, input);
+    }
+  }
+
+  try {
+    return await originalFetch(targetUrl, init);
+  } catch (err) {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('medshare:network-error', {
+        detail: { url: typeof targetUrl === 'string' ? targetUrl : targetUrl.url, error: err.message }
+      }));
+    }
+    throw err;
+  }
+};
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

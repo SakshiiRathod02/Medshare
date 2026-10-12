@@ -31,6 +31,13 @@ function MainApp() {
 
   const [queueCount, setQueueCount] = useState(0);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [networkError, setNetworkError] = useState(null);
+
+  useEffect(() => {
+    const handleNetworkErr = (e) => setNetworkError(e.detail);
+    window.addEventListener('medshare:network-error', handleNetworkErr);
+    return () => window.removeEventListener('medshare:network-error', handleNetworkErr);
+  }, []);
 
   // Fetch queue count for verifier badge
   useEffect(() => {
@@ -90,6 +97,28 @@ function MainApp() {
         onOpenAuth={() => setIsAuthModalOpen(true)}
         queueCount={queueCount}
       />
+
+      {networkError && (
+        <div className="bg-rose-600 text-white text-xs py-2.5 px-4 flex items-center justify-between shadow-md">
+          <div className="flex items-center space-x-2 truncate mr-2">
+            <span className="font-bold flex-shrink-0">⚠️ Server Unreachable:</span>
+            <span className="truncate">Cannot connect to {networkError.url}. Ensure phone & PC are on the same Wi-Fi.</span>
+          </div>
+          <button
+            onClick={() => {
+              const current = localStorage.getItem('medshare_api_base') || 'http://192.168.1.2:5000';
+              const input = prompt('Enter Backend Server IP or URL (e.g. http://192.168.1.2:5000):', current);
+              if (input && input.trim()) {
+                localStorage.setItem('medshare_api_base', input.trim().replace(/\/+$/, ''));
+                window.location.reload();
+              }
+            }}
+            className="px-2.5 py-1 bg-white text-rose-700 font-bold rounded text-xs shadow hover:bg-rose-50 flex-shrink-0"
+          >
+            Change IP
+          </button>
+        </div>
+      )}
 
       {/* Statutory Disclaimer Strip */}
       <div className="bg-teal-900 text-teal-100 text-xs py-2 px-4 border-b border-teal-800">
