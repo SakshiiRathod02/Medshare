@@ -18,9 +18,26 @@ import QRScannerModal from './components/QRScannerModal';
 import AuthModal from './components/AuthModal';
 import { ShieldCheck } from 'lucide-react';
 
+const ROLE_DEFAULT_TABS = {
+  verifier: 'verifier-queue',
+  donor: 'my-donations',
+  recipient: 'browse',
+  admin: 'admin-portal',
+  guest: 'landing'
+};
+
+const ROLE_ALLOWED_TABS = {
+  verifier: ['verifier-queue', 'browse', 'public-trail', 'disposal'],
+  donor: ['my-donations', 'donor-requests', 'urgent-needs', 'cabinet', 'impact', 'public-trail'],
+  recipient: ['browse', 'recipient-requests', 'urgent-needs', 'impact', 'public-trail'],
+  admin: ['admin-portal', 'verifier-queue', 'browse', 'my-donations', 'donor-requests', 'recipient-requests', 'urgent-needs', 'disposal', 'cabinet', 'impact', 'public-trail'],
+  guest: ['landing', 'browse', 'impact', 'public-trail']
+};
+
 function MainApp() {
   const { user, token } = useAuth();
-  const [activeTab, setActiveTab] = useState('browse');
+  const userRole = user?.role || 'guest';
+  const [activeTab, setActiveTab] = useState(() => ROLE_DEFAULT_TABS[userRole] || 'browse');
   const [selectedTrailId, setSelectedTrailId] = useState(null);
 
   // Modals
@@ -59,14 +76,13 @@ function MainApp() {
     checkQueue();
   }, [token, user, refreshKey]);
 
-  // Adjust active tab when switching roles
+  // Adjust active tab when switching roles to match that role's primary features
   useEffect(() => {
-    if (user?.role === 'verifier' && activeTab === 'my-donations') {
-      setActiveTab('verifier-queue');
-    } else if (user?.role === 'donor' && activeTab === 'verifier-queue') {
-      setActiveTab('my-donations');
+    const allowed = ROLE_ALLOWED_TABS[userRole] || ROLE_ALLOWED_TABS.guest;
+    if (!allowed.includes(activeTab)) {
+      setActiveTab(ROLE_DEFAULT_TABS[userRole] || 'browse');
     }
-  }, [user?.role]);
+  }, [userRole]);
 
   const handleDonationCreated = () => {
     setRefreshKey(prev => prev + 1);
@@ -219,7 +235,7 @@ function MainApp() {
         {activeTab === 'public-trail' && (
           <PublicTrailView
             trailId={selectedTrailId || 'MED-TR-001'}
-            onBack={() => setActiveTab('browse')}
+            onBack={() => setActiveTab(ROLE_DEFAULT_TABS[userRole] || 'browse')}
           />
         )}
       </main>

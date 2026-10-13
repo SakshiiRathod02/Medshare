@@ -168,7 +168,27 @@ export default function BrowseDonationsView({ onOpenNewDonation, onSelectTrail, 
         </div>
       )}
 
-
+      {role === 'verifier' && (
+        <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center space-x-2.5">
+            <span className="text-xl">🩺</span>
+            <div>
+              <span className="font-bold text-emerald-900 dark:text-emerald-200">Pharmacist Verifier Mode (Browse Approvals):</span>
+              <p className="text-emerald-700 dark:text-emerald-300 text-[11px] mt-0.5">
+                Viewing certified & approved medicine batches available for healthcare redistribution. Click <strong>"Match Engine"</strong> to view multi-factor suitability scoring.
+              </p>
+            </div>
+          </div>
+          {onSelectTab && (
+            <button
+              onClick={() => onSelectTab('verifier-queue')}
+              className="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs whitespace-nowrap shadow-sm"
+            >
+              Pending Verifications Queue →
+            </button>
+          )}
+        </div>
+      )}
 
       {!token && (
         <div className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">

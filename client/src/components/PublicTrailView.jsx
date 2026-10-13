@@ -1,19 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, CheckCircle2, Clock, Package, AlertCircle, ArrowLeft, Calendar, User, FileText, QrCode } from 'lucide-react';
 
-export default function PublicTrailView({ trailId, onBack }) {
+export default function PublicTrailView({ trailId = 'MED-TR-001', onBack }) {
+  const [currentTrailId, setCurrentTrailId] = useState(trailId || 'MED-TR-001');
   const [trail, setTrail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!trailId) return;
+    if (trailId) {
+      setCurrentTrailId(trailId);
+    }
+  }, [trailId]);
+
+  useEffect(() => {
+    if (!currentTrailId) return;
 
     async function fetchTrail() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/trail/${trailId}`);
+        const res = await fetch(`/api/trail/${currentTrailId}`);
         if (!res.ok) {
           const errData = await res.json();
           throw new Error(errData.error || 'Batch trail not found');
@@ -28,23 +35,32 @@ export default function PublicTrailView({ trailId, onBack }) {
     }
 
     fetchTrail();
-  }, [trailId]);
+  }, [currentTrailId]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 py-4">
-      {/* Back button */}
-      <div className="flex items-center justify-between">
+      {/* Back button and Batch Switcher */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <button
           onClick={onBack}
-          className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors self-start"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to App</span>
         </button>
 
-        <span className="text-xs font-mono text-slate-400">
-          Public Ledger Verification ID: {trailId}
-        </span>
+        <div className="flex items-center space-x-2">
+          <span className="text-xs font-semibold text-slate-500">Inspect Batch:</span>
+          <select
+            value={currentTrailId}
+            onChange={(e) => setCurrentTrailId(e.target.value)}
+            className="text-xs font-mono font-bold py-1 px-2.5 rounded-xl border border-teal-300 dark:border-teal-700 bg-teal-50/50 dark:bg-slate-800 text-teal-900 dark:text-teal-200 focus:outline-none focus:ring-1 focus:ring-teal-500"
+          >
+            {['MED-TR-001', 'MED-TR-002', 'MED-TR-003', 'MED-TR-004', 'MED-TR-005', 'MED-TR-006', 'MED-TR-007', 'MED-TR-008', 'MED-TR-009', 'MED-TR-010'].map(id => (
+              <option key={id} value={id}>{id}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {loading ? (
