@@ -16,28 +16,11 @@ import PublicTrailView from './components/PublicTrailView';
 import DonationFormModal from './components/DonationFormModal';
 import QRScannerModal from './components/QRScannerModal';
 import AuthModal from './components/AuthModal';
-import { ShieldCheck, Lock } from 'lucide-react';
-
-const ROLE_DEFAULT_TABS = {
-  donor: 'my-donations',
-  recipient: 'browse',
-  verifier: 'verifier-queue',
-  admin: 'admin-portal',
-  guest: 'landing'
-};
-
-const ROLE_ALLOWED_TABS = {
-  donor: ['my-donations', 'donor-requests', 'urgent-needs', 'cabinet', 'impact', 'public-trail'],
-  recipient: ['browse', 'recipient-requests', 'urgent-needs', 'impact', 'public-trail'],
-  verifier: ['verifier-queue', 'disposal', 'public-trail'],
-  admin: ['admin-portal', 'verifier-queue', 'disposal', 'browse', 'urgent-needs', 'impact', 'public-trail', 'my-donations', 'donor-requests', 'recipient-requests', 'cabinet'],
-  guest: ['landing', 'browse', 'impact', 'public-trail']
-};
+import { ShieldCheck } from 'lucide-react';
 
 function MainApp() {
-  const { user, token, switchAccount } = useAuth();
-  const userRole = user?.role || 'guest';
-  const [activeTab, setActiveTab] = useState(() => userRole === 'guest' ? 'landing' : (ROLE_DEFAULT_TABS[userRole] || 'browse'));
+  const { user, token } = useAuth();
+  const [activeTab, setActiveTab] = useState('browse');
   const [selectedTrailId, setSelectedTrailId] = useState(null);
 
   // Modals
@@ -78,11 +61,12 @@ function MainApp() {
 
   // Adjust active tab when switching roles
   useEffect(() => {
-    const allowed = ROLE_ALLOWED_TABS[userRole] || ROLE_ALLOWED_TABS.guest;
-    if (!allowed.includes(activeTab)) {
-      setActiveTab(ROLE_DEFAULT_TABS[userRole] || 'browse');
+    if (user?.role === 'verifier' && activeTab === 'my-donations') {
+      setActiveTab('verifier-queue');
+    } else if (user?.role === 'donor' && activeTab === 'verifier-queue') {
+      setActiveTab('my-donations');
     }
-  }, [userRole]);
+  }, [user?.role]);
 
   const handleDonationCreated = () => {
     setRefreshKey(prev => prev + 1);
@@ -152,122 +136,91 @@ function MainApp() {
       </div>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1 w-full max-w-full overflow-x-hidden">
-        {/* Tab Access Guard */}
-        {!ROLE_ALLOWED_TABS[userRole]?.includes(activeTab) ? (
-          <div className="bg-white dark:bg-slate-900 p-8 sm:p-12 rounded-3xl border border-slate-200 dark:border-slate-800 text-center shadow-sm max-w-xl mx-auto my-8 space-y-4">
-            <div className="h-14 w-14 bg-amber-50 dark:bg-amber-950/50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold border border-amber-200 dark:border-amber-800">
-              <Lock className="w-7 h-7" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                Feature Restricted for {userRole.toUpperCase()} Role
-              </h2>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                {userRole === 'donor'
-                  ? 'Donors cannot browse surplus medicines. As a donor, your role is to list surplus medicines from your cabinet and fulfill clinic requests. Browsing surplus stock is reserved for Recipient Clinics and NGOs searching for medicine allocations.'
-                  : userRole === 'verifier'
-                  ? 'Pharmacist Verifiers do not browse surplus. Your workspace is focused strictly on the statutory Verification Queue and Safe Disposal.'
-                  : 'This feature is strictly partitioned and not available for your role. Only Platform Admins have universal visibility across all features.'}
-              </p>
-            </div>
-            <div className="pt-2 flex items-center justify-center gap-2">
-              <button
-                onClick={() => setActiveTab(ROLE_DEFAULT_TABS[userRole] || 'landing')}
-                className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-sm"
-              >
-                Go to My Primary Workspace
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
-            {activeTab === 'landing' && (
-              <LandingPageView
-                onExplore={() => setActiveTab('browse')}
-                onDonate={() => {
-                  setPrefilledMedicine(null);
-                  setIsDonationModalOpen(true);
-                }}
-                onLogin={() => setIsAuthModalOpen(true)}
-              />
-            )}
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 w-full max-w-full overflow-x-hidden">
+        {activeTab === 'landing' && (
+          <LandingPageView
+            onExplore={() => setActiveTab('browse')}
+            onDonate={() => {
+              setPrefilledMedicine(null);
+              setIsDonationModalOpen(true);
+            }}
+            onLogin={() => setIsAuthModalOpen(true)}
+          />
+        )}
 
-            {activeTab === 'browse' && (
-              <BrowseDonationsView
-                key={`browse-${refreshKey}`}
-                onOpenNewDonation={() => {
-                  setPrefilledMedicine(null);
-                  setIsDonationModalOpen(true);
-                }}
-                onSelectTrail={handleSelectTrail}
-                onOpenAuth={() => setIsAuthModalOpen(true)}
-                onSelectTab={setActiveTab}
-              />
-            )}
+        {activeTab === 'browse' && (
+          <BrowseDonationsView
+            key={`browse-${refreshKey}`}
+            onOpenNewDonation={() => {
+              setPrefilledMedicine(null);
+              setIsDonationModalOpen(true);
+            }}
+            onSelectTrail={handleSelectTrail}
+            onOpenAuth={() => setIsAuthModalOpen(true)}
+            onSelectTab={setActiveTab}
+          />
+        )}
 
-            {activeTab === 'my-donations' && (
-              <MyDonationsView
-                key={`my-${refreshKey}`}
-                onOpenNewDonation={() => {
-                  setPrefilledMedicine(null);
-                  setIsDonationModalOpen(true);
-                }}
-              />
-            )}
+        {activeTab === 'my-donations' && (
+          <MyDonationsView
+            key={`my-${refreshKey}`}
+            onOpenNewDonation={() => {
+              setPrefilledMedicine(null);
+              setIsDonationModalOpen(true);
+            }}
+          />
+        )}
 
-            {activeTab === 'donor-requests' && (
-              <DonorRequestsView key={`donor-req-${refreshKey}`} />
-            )}
+        {activeTab === 'donor-requests' && (
+          <DonorRequestsView key={`donor-req-${refreshKey}`} />
+        )}
 
-            {activeTab === 'recipient-requests' && (
-              <RecipientRequestsView
-                key={`recip-req-${refreshKey}`}
-                onOpenScanner={() => setIsScannerModalOpen(true)}
-                onSelectTrail={handleSelectTrail}
-              />
-            )}
+        {activeTab === 'recipient-requests' && (
+          <RecipientRequestsView
+            key={`recip-req-${refreshKey}`}
+            onOpenScanner={() => setIsScannerModalOpen(true)}
+            onSelectTrail={handleSelectTrail}
+          />
+        )}
 
-            {activeTab === 'cabinet' && (
-              <MedicineCabinetView
-                key={`cabinet-${refreshKey}`}
-                onPrefillDonation={handlePrefillDonation}
-              />
-            )}
+        {activeTab === 'cabinet' && (
+          <MedicineCabinetView
+            key={`cabinet-${refreshKey}`}
+            onPrefillDonation={handlePrefillDonation}
+          />
+        )}
 
-            {activeTab === 'disposal' && (
-              <DisposalQueueView key={`disposal-${refreshKey}`} />
-            )}
+        {activeTab === 'disposal' && (
+          <DisposalQueueView key={`disposal-${refreshKey}`} />
+        )}
 
-            {activeTab === 'urgent-needs' && (
-              <UrgentNeedsView
-                key={`urgent-${refreshKey}`}
-                onOpenDonationWithMedicine={handlePrefillDonation}
-              />
-            )}
+        {activeTab === 'urgent-needs' && (
+          <UrgentNeedsView
+            key={`urgent-${refreshKey}`}
+            onOpenDonationWithMedicine={handlePrefillDonation}
+          />
+        )}
 
-            {activeTab === 'impact' && (
-              <ImpactView key={`impact-${refreshKey}`} />
-            )}
+        {activeTab === 'impact' && (
+          <ImpactView key={`impact-${refreshKey}`} />
+        )}
 
-            {activeTab === 'verifier-queue' && (
-              <VerifierQueueView
-                key={`queue-${refreshKey}`}
-                onQueueCountChange={(count) => setQueueCount(count)}
-              />
-            )}
+        {activeTab === 'verifier-queue' && (
+          <VerifierQueueView
+            key={`queue-${refreshKey}`}
+            onQueueCountChange={(count) => setQueueCount(count)}
+          />
+        )}
 
-            {activeTab === 'admin-portal' && (
-              <AdminDashboardView key={`admin-${refreshKey}`} />
-            )}
+        {activeTab === 'admin-portal' && (
+          <AdminDashboardView key={`admin-${refreshKey}`} />
+        )}
 
-            {activeTab === 'public-trail' && (
-              <PublicTrailView
-                trailId={selectedTrailId || 'MED-TR-001'}
-                onBack={() => setActiveTab(ROLE_DEFAULT_TABS[userRole] || 'landing')}
-              />
-            )}
-          </>
+        {activeTab === 'public-trail' && (
+          <PublicTrailView
+            trailId={selectedTrailId || 'MED-TR-001'}
+            onBack={() => setActiveTab('browse')}
+          />
         )}
       </main>
 

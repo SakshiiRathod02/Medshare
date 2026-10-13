@@ -115,54 +115,6 @@ export default function Navbar({
 
   const role = user?.role || 'guest';
 
-  // Strict role-specific navigation tabs
-  const getNavTabsForRole = () => {
-    switch (role) {
-      case 'donor':
-        return [
-          { id: 'my-donations', label: 'My Donations', icon: Package },
-          { id: 'donor-requests', label: 'Requests', icon: HeartHandshake },
-          { id: 'urgent-needs', label: 'Urgent Needs', icon: AlertCircle },
-          { id: 'cabinet', label: 'My Cabinet', icon: Pill },
-          { id: 'impact', label: 'Impact', icon: Trophy }
-        ];
-      case 'recipient':
-        return [
-          { id: 'browse', label: 'Browse Surplus', icon: Pill },
-          { id: 'recipient-requests', label: 'My Requests', icon: HeartHandshake },
-          { id: 'urgent-needs', label: 'Post Urgent Need', icon: AlertCircle },
-          { id: 'impact', label: 'Impact', icon: Trophy }
-        ];
-      case 'verifier':
-        return [
-          { id: 'verifier-queue', label: 'Verification Queue', icon: ShieldCheck, badge: queueCount },
-          { id: 'disposal', label: 'Safe Disposal', icon: Trash2 },
-          { id: 'public-trail', label: 'Batch Audit Trail', icon: FileCheck }
-        ];
-      case 'admin':
-        return [
-          { id: 'admin-portal', label: 'Admin Portal', icon: Shield, isSpecial: true },
-          { id: 'verifier-queue', label: 'Verification Queue', icon: ShieldCheck, badge: queueCount },
-          { id: 'disposal', label: 'Safe Disposal', icon: Trash2 },
-          { id: 'browse', label: 'All Surplus', icon: Pill },
-          { id: 'my-donations', label: 'All Donations', icon: Package },
-          { id: 'donor-requests', label: 'Donor Requests', icon: HeartHandshake },
-          { id: 'recipient-requests', label: 'Clinic Requests', icon: HeartHandshake },
-          { id: 'urgent-needs', label: 'Urgent Needs', icon: AlertCircle },
-          { id: 'impact', label: 'Impact & Reports', icon: Trophy }
-        ];
-      case 'guest':
-      default:
-        return [
-          { id: 'landing', label: 'Home', icon: HeartHandshake },
-          { id: 'browse', label: 'Browse Surplus', icon: Pill },
-          { id: 'impact', label: 'Public Impact', icon: Trophy }
-        ];
-    }
-  };
-
-  const currentNavTabs = getNavTabsForRole();
-
   return (
     <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 shadow-sm transition-colors">
       <div className="w-full px-3 sm:px-6 lg:px-8">
@@ -170,16 +122,7 @@ export default function Navbar({
           {/* Brand Logo & Navigation */}
           <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
             <button
-              onClick={() => {
-                const defaults = {
-                  donor: 'my-donations',
-                  recipient: 'browse',
-                  verifier: 'verifier-queue',
-                  admin: 'admin-portal',
-                  guest: 'landing'
-                };
-                setActiveTab(defaults[role] || 'landing');
-              }}
+              onClick={() => setActiveTab('landing')}
               className="flex items-center space-x-2.5 text-left focus:outline-none flex-shrink-0"
             >
               <div className="h-10 w-10 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold text-xl shadow-sm">
@@ -195,92 +138,166 @@ export default function Navbar({
               </div>
             </button>
 
-            {/* Role-Specific Navigation Tabs */}
+            {/* Navigation Tabs */}
             <nav className="hidden lg:flex items-center space-x-1 min-w-0 overflow-x-auto scrollbar-none py-1">
-              {currentNavTabs.map((tab) => {
-                const TabIcon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center space-x-1.5 flex-shrink-0 ${
-                      isActive
-                        ? tab.isSpecial
-                          ? 'bg-purple-100 dark:bg-purple-950 text-purple-900 dark:text-purple-200 shadow-sm ring-1 ring-purple-300 dark:ring-purple-700'
-                          : 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200 shadow-sm ring-1 ring-teal-200 dark:ring-teal-800'
-                        : tab.isSpecial
-                          ? 'text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50'
-                          : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <TabIcon className="w-3.5 h-3.5" />
-                    <span>{tab.label}</span>
-                    {typeof tab.badge === 'number' && tab.badge > 0 && (
-                      <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white animate-pulse">
-                        {tab.badge}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+              <button
+                onClick={() => setActiveTab('browse')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+                  activeTab === 'browse'
+                    ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                {t('browseSurplus')}
+              </button>
+
+              {(role === 'donor' || role === 'admin') && (
+                <button
+                  onClick={() => setActiveTab('my-donations')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+                    activeTab === 'my-donations'
+                      ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  {t('myDonations')}
+                </button>
+              )}
+
+              {/* Requests Tab (Incoming for donor, Outgoing for recipient) */}
+              {role === 'donor' && (
+                <button
+                  onClick={() => setActiveTab('donor-requests')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+                    activeTab === 'donor-requests'
+                      ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  Requests
+                </button>
+              )}
+
+              {role === 'recipient' && (
+                <button
+                  onClick={() => setActiveTab('recipient-requests')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+                    activeTab === 'recipient-requests'
+                      ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  My Requests
+                </button>
+              )}
+
+              <button
+                onClick={() => setActiveTab('cabinet')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+                  activeTab === 'cabinet'
+                    ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                {t('myCabinet')}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('disposal')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+                  activeTab === 'disposal'
+                    ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                {t('disposalQueue')}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('urgent-needs')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+                  activeTab === 'urgent-needs'
+                    ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                {t('urgentNeeds')}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('impact')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+                  activeTab === 'impact'
+                    ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                {t('impact')}
+              </button>
+
+              {(role === 'verifier' || role === 'admin') && (
+                <button
+                  onClick={() => setActiveTab('verifier-queue')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex items-center space-x-1.5 flex-shrink-0 ${
+                    activeTab === 'verifier-queue'
+                      ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span>{t('verificationQueue')}</span>
+                  {queueCount > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">
+                      {queueCount}
+                    </span>
+                  )}
+                </button>
+              )}
+
+              {role === 'admin' && (
+                <button
+                  onClick={() => setActiveTab('admin-portal')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors flex-shrink-0 text-purple-600 dark:text-purple-400 ${
+                    activeTab === 'admin-portal'
+                      ? 'bg-purple-50 dark:bg-purple-950'
+                      : 'hover:bg-purple-50 dark:hover:bg-purple-950'
+                  }`}
+                >
+                  {t('adminPortal')}
+                </button>
+              )}
             </nav>
           </div>
 
           {/* Right Action Controls - flex-shrink-0 to ALWAYS stay visible */}
           <div className="flex items-center space-x-2 sm:space-x-2.5 flex-shrink-0">
-            {/* Quick Action for Donor: Donate Medicine */}
-            {role === 'donor' && (
+            {/* Quick Action: Donate Medicine */}
+            {(role === 'donor' || role === 'admin') && (
               <button
                 onClick={onOpenNewDonation}
-                className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95 flex-shrink-0"
+                className="hidden sm:inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95 flex-shrink-0"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
-                <span>{t('donateMedicine') || 'Donate Medicine'}</span>
+                <span>{t('donateMedicine')}</span>
               </button>
             )}
 
-            {/* Quick Action for Recipient: Scan Handover QR */}
-            {role === 'recipient' && (
-              <button
-                onClick={onOpenScanner}
-                className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95"
-              >
-                <QrCode className="w-3.5 h-3.5" />
-                <span>Scan Handover QR</span>
-              </button>
-            )}
-
-            {/* Quick Action for Verifier: Review Queue */}
-            {role === 'verifier' && queueCount > 0 && (
-              <button
-                onClick={() => setActiveTab('verifier-queue')}
-                className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm transition-all active:scale-95"
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Review Queue ({queueCount})</span>
-              </button>
-            )}
+            {/* Quick Action: QR Scanner */}
+            <button
+              onClick={onOpenScanner}
+              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex-shrink-0"
+              title="Scan Handover QR"
+            >
+              <QrCode className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+            </button>
 
             {/* Quick Action for Guest: Sign In */}
             {!token && (
               <button
                 onClick={onOpenAuth}
-                className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95"
+                className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95 flex-shrink-0"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Sign In</span>
-              </button>
-            )}
-
-            {/* QR Scanner Icon button (Visible for Recipient & Admin who scan handovers) */}
-            {(role === 'recipient' || role === 'admin') && (
-              <button
-                onClick={onOpenScanner}
-                className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                title="Scan Handover QR"
-              >
-                <QrCode className="w-4 h-4 text-teal-600 dark:text-teal-400" />
               </button>
             )}
 
@@ -492,33 +509,130 @@ export default function Navbar({
 
       {/* Mobile Horizontal Navigation Strip (visible only on mobile/small screens < lg) */}
       <div className="lg:hidden flex items-center space-x-1.5 overflow-x-auto max-w-full px-3 py-2 border-t border-slate-100 dark:border-slate-800 scrollbar-none bg-slate-50/80 dark:bg-slate-900/80 touch-pan-x">
-        {currentNavTabs.map((tab) => {
-          const TabIcon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex items-center space-x-1.5 ${
-                isActive
-                  ? tab.isSpecial
-                    ? 'bg-purple-100 dark:bg-purple-950 text-purple-900 dark:text-purple-200'
-                    : 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
-                  : tab.isSpecial
-                    ? 'text-purple-600 dark:text-purple-400 hover:bg-purple-50'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}
-            >
-              <TabIcon className="w-3.5 h-3.5" />
-              <span>{tab.label}</span>
-              {typeof tab.badge === 'number' && tab.badge > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">
-                  {tab.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
+        <button
+          onClick={() => setActiveTab('browse')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+            activeTab === 'browse'
+              ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          {t('browseSurplus')}
+        </button>
+
+        {(role === 'donor' || role === 'admin') && (
+          <button
+            onClick={() => setActiveTab('my-donations')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+              activeTab === 'my-donations'
+                ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            {t('myDonations')}
+          </button>
+        )}
+
+        {role === 'donor' && (
+          <button
+            onClick={() => setActiveTab('donor-requests')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+              activeTab === 'donor-requests'
+                ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            Requests
+          </button>
+        )}
+
+        {role === 'recipient' && (
+          <button
+            onClick={() => setActiveTab('recipient-requests')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+              activeTab === 'recipient-requests'
+                ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            My Requests
+          </button>
+        )}
+
+        <button
+          onClick={() => setActiveTab('cabinet')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+            activeTab === 'cabinet'
+              ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          {t('myCabinet')}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('disposal')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+            activeTab === 'disposal'
+              ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          {t('disposalQueue')}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('urgent-needs')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+            activeTab === 'urgent-needs'
+              ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          {t('urgentNeeds')}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('impact')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+            activeTab === 'impact'
+              ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          {t('impact')}
+        </button>
+
+        {(role === 'verifier' || role === 'admin') && (
+          <button
+            onClick={() => setActiveTab('verifier-queue')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors flex items-center space-x-1.5 flex-shrink-0 ${
+              activeTab === 'verifier-queue'
+                ? 'bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-200'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <span>{t('verificationQueue')}</span>
+            {queueCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">
+                {queueCount}
+              </span>
+            )}
+          </button>
+        )}
+
+        {role === 'admin' && (
+          <button
+            onClick={() => setActiveTab('admin-portal')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors flex-shrink-0 text-purple-600 dark:text-purple-400 ${
+              activeTab === 'admin-portal'
+                ? 'bg-purple-50 dark:bg-purple-950'
+                : 'hover:bg-purple-50 dark:hover:bg-purple-950'
+            }`}
+          >
+            {t('adminPortal')}
+          </button>
+        )}
       </div>
     </header>
   );
