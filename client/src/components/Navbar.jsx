@@ -165,10 +165,10 @@ export default function Navbar({
 
   return (
     <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 shadow-sm transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Brand Logo */}
-          <div className="flex items-center space-x-4">
+      <div className="w-full px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 gap-3">
+          {/* Brand Logo & Navigation */}
+          <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
             <button
               onClick={() => {
                 const defaults = {
@@ -180,12 +180,12 @@ export default function Navbar({
                 };
                 setActiveTab(defaults[role] || 'landing');
               }}
-              className="flex items-center space-x-2.5 text-left focus:outline-none"
+              className="flex items-center space-x-2.5 text-left focus:outline-none flex-shrink-0"
             >
               <div className="h-10 w-10 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold text-xl shadow-sm">
                 <HeartHandshake className="w-6 h-6" />
               </div>
-              <div>
+              <div className="hidden sm:block">
                 <div className="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white flex items-center">
                   Med<span className="text-teal-600 dark:text-teal-400">Share</span>
                 </div>
@@ -196,7 +196,7 @@ export default function Navbar({
             </button>
 
             {/* Role-Specific Navigation Tabs */}
-            <nav className="hidden lg:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-1 min-w-0 overflow-x-auto scrollbar-none py-1">
               {currentNavTabs.map((tab) => {
                 const TabIcon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -204,7 +204,7 @@ export default function Navbar({
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center space-x-1.5 ${
+                    className={`px-2.5 xl:px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center space-x-1.5 flex-shrink-0 ${
                       isActive
                         ? tab.isSpecial
                           ? 'bg-purple-100 dark:bg-purple-950 text-purple-900 dark:text-purple-200 shadow-sm ring-1 ring-purple-300 dark:ring-purple-700'
@@ -227,13 +227,13 @@ export default function Navbar({
             </nav>
           </div>
 
-          {/* Right Action Controls */}
-          <div className="flex items-center space-x-2.5">
+          {/* Right Action Controls - flex-shrink-0 to ALWAYS stay visible */}
+          <div className="flex items-center space-x-2 sm:space-x-2.5 flex-shrink-0">
             {/* Quick Action for Donor: Donate Medicine */}
-            {(role === 'donor' || role === 'admin') && (
+            {role === 'donor' && (
               <button
                 onClick={onOpenNewDonation}
-                className="hidden sm:inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95"
+                className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95 flex-shrink-0"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
                 <span>{t('donateMedicine') || 'Donate Medicine'}</span>
@@ -371,10 +371,10 @@ export default function Navbar({
               {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
 
-            {/* Server IP Config Quick Button - hidden on mobile (accessible in profile dropdown) */}
+            {/* Server IP Config Quick Button - hidden on laptop/mobile (accessible in profile dropdown) */}
             <button
               onClick={handleEditServerIp}
-              className="hidden sm:flex px-2 py-1.5 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 hover:bg-teal-100 text-[11px] font-semibold items-center space-x-1"
+              className="hidden 2xl:flex px-2 py-1.5 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 hover:bg-teal-100 text-[11px] font-semibold items-center space-x-1 flex-shrink-0"
               title="Configure Backend Server IP"
             >
               <span>🌐</span>
@@ -383,24 +383,26 @@ export default function Navbar({
               </span>
             </button>
 
-            {/* Profile & Demo Switcher Dropdown */}
-            <div className="relative">
+            {/* Profile & Demo Switcher Dropdown - ALWAYS VISIBLE */}
+            <div className="relative flex-shrink-0">
               <button
                 onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                className="flex items-center space-x-2 p-1.5 pr-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left"
+                className="flex items-center space-x-2 p-1.5 pr-2.5 rounded-xl border border-teal-500/30 dark:border-teal-500/40 bg-teal-50/70 dark:bg-slate-800 hover:bg-teal-100/70 dark:hover:bg-slate-700 transition-colors text-left flex-shrink-0 shadow-xs"
+                title="Click to Switch Demo Persona / View Profile"
               >
-                <div className="h-7 w-7 rounded-lg bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 flex items-center justify-center font-bold text-xs uppercase">
+                <div className="h-7 w-7 rounded-lg bg-teal-600 text-white flex items-center justify-center font-extrabold text-xs uppercase shadow-xs flex-shrink-0">
                   {user?.role?.slice(0, 2) || 'GU'}
                 </div>
-                <div className="hidden md:block">
-                  <div className="text-xs font-semibold text-slate-900 dark:text-white truncate max-w-[110px]">
+                <div className="hidden sm:block flex-shrink-0">
+                  <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[90px] xl:max-w-[130px]">
                     {user?.name || 'Guest'}
                   </div>
-                  <div className="text-[10px] text-teal-600 dark:text-teal-400 capitalize font-medium">
-                    {user?.role || 'Sign In'}
+                  <div className="text-[10px] text-teal-700 dark:text-teal-300 capitalize font-bold flex items-center space-x-0.5 leading-none">
+                    <span>{user?.role || 'Sign In'}</span>
+                    <span className="text-[9px]">▾</span>
                   </div>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500 flex-shrink-0 ml-0.5" />
               </button>
 
               {roleDropdownOpen && (

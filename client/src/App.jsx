@@ -16,7 +16,6 @@ import PublicTrailView from './components/PublicTrailView';
 import DonationFormModal from './components/DonationFormModal';
 import QRScannerModal from './components/QRScannerModal';
 import AuthModal from './components/AuthModal';
-import RoleBanner from './components/RoleBanner';
 import { ShieldCheck, Lock } from 'lucide-react';
 
 const ROLE_DEFAULT_TABS = {
@@ -154,9 +153,6 @@ function MainApp() {
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1 w-full max-w-full overflow-x-hidden">
-        {/* Visual Role Context & Interactive Workflow Banner */}
-        <RoleBanner onTabSelect={setActiveTab} />
-
         {/* Tab Access Guard */}
         {!ROLE_ALLOWED_TABS[userRole]?.includes(activeTab) ? (
           <div className="bg-white dark:bg-slate-900 p-8 sm:p-12 rounded-3xl border border-slate-200 dark:border-slate-800 text-center shadow-sm max-w-xl mx-auto my-8 space-y-4">
