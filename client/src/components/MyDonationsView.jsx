@@ -160,7 +160,7 @@ export default function MyDonationsView({ onOpenNewDonation }) {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-6 text-right">
+                  <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-6 text-left sm:text-right pt-2 sm:pt-0">
                     <div>
                       <div className="text-xs text-slate-400 uppercase font-semibold">Quantity</div>
                       <div className="text-base font-bold text-slate-900">{d.quantity} {d.unit}</div>

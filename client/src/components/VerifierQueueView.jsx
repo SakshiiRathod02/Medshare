@@ -188,7 +188,7 @@ export default function VerifierQueueView({ onQueueCountChange }) {
                 </div>
 
                 {/* Storage & Prescription Badges */}
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border ${
                     item.storage_condition === 'cold-chain'
                       ? 'bg-cyan-50 text-cyan-800 border-cyan-200'

@@ -6,8 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import RequestModal from './RequestModal';
 import ShelfLifeMatchModal from './ShelfLifeMatchModal';
 
-export default function BrowseDonationsView({ onOpenNewDonation, onSelectTrail }) {
+export default function BrowseDonationsView({ onOpenNewDonation, onSelectTrail, onOpenAuth, onSelectTab }) {
   const { user, token } = useAuth();
+  const role = user?.role || 'guest';
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'map'
@@ -144,6 +145,53 @@ export default function BrowseDonationsView({ onOpenNewDonation, onSelectTrail }
         </div>
       </div>
 
+      {/* Role-Specific Context & Action Guidance */}
+      {role === 'recipient' && (
+        <div className="p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center space-x-2.5">
+            <span className="text-xl">🤝</span>
+            <div>
+              <span className="font-bold text-blue-900 dark:text-blue-200">Recipient Mode (Asha Clinic / Sewa NGO):</span>
+              <p className="text-blue-700 dark:text-blue-300 text-[11px] mt-0.5">
+                Browse approved surplus below and click <strong>"Request Stock"</strong> on any item to allocate medicine batches for your clinic or patients.
+              </p>
+            </div>
+          </div>
+          {onSelectTab && (
+            <button
+              onClick={() => onSelectTab('recipient-requests')}
+              className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs whitespace-nowrap shadow-sm"
+            >
+              My Outgoing Requests →
+            </button>
+          )}
+        </div>
+      )}
+
+
+
+      {!token && (
+        <div className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center space-x-2.5">
+            <span className="text-xl">👁️</span>
+            <div>
+              <span className="font-bold text-slate-800 dark:text-slate-200">Guest Viewer Mode:</span>
+              <p className="text-slate-600 dark:text-slate-400 text-[11px] mt-0.5">
+                Browsing public medicine surplus catalog. Sign in or choose a demo persona above to request medicines or list donations.
+              </p>
+            </div>
+          </div>
+          {onOpenAuth && (
+            <button
+              onClick={onOpenAuth}
+              className="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs whitespace-nowrap shadow-sm"
+            >
+              Sign In to Request
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Filter and Search Bar */}
       <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
         <form onSubmit={handleSearchSubmit} className="flex gap-2">
@@ -241,12 +289,12 @@ export default function BrowseDonationsView({ onOpenNewDonation, onSelectTrail }
       </div>
 
       {/* Results Header with List vs Map Toggle */}
-      <div className="flex items-center justify-between px-1">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 px-1">
         <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
           Available Listings ({donations.length})
         </span>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
           <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
             <button
               onClick={() => setViewMode('list')}
@@ -397,6 +445,7 @@ export default function BrowseDonationsView({ onOpenNewDonation, onSelectTrail }
                     <button
                       onClick={() => setSelectedDonationForMatches(d.id)}
                       className="flex-1 py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center space-x-1 transition-colors"
+                      title="Run multi-factor match engine"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-teal-600" />
                       <span>Match Engine</span>
@@ -409,6 +458,29 @@ export default function BrowseDonationsView({ onOpenNewDonation, onSelectTrail }
                       >
                         <Send className="w-3.5 h-3.5" />
                         <span>Request Stock</span>
+                      </button>
+                    )}
+
+                    {user?.role === 'donor' && (
+                      <span className="flex-1 py-2 px-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-slate-400 font-medium text-[11px] flex items-center justify-center text-center border border-slate-200/60 dark:border-slate-800" title="Only registered clinics or recipients can request medicine stock">
+                        Recipient Only
+                      </span>
+                    )}
+
+                    {user?.role === 'verifier' && (
+                      <span className="flex-1 py-2 px-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 font-bold text-[11px] flex items-center justify-center space-x-1 border border-emerald-200/60 dark:border-emerald-800">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Verified</span>
+                      </span>
+                    )}
+
+                    {!token && (
+                      <button
+                        onClick={onOpenAuth}
+                        className="flex-1 py-2 px-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs flex items-center justify-center space-x-1 shadow-sm transition-colors"
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Sign In</span>
                       </button>
                     )}
                   </div>

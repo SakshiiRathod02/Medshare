@@ -107,6 +107,29 @@ export default function UrgentNeedsView({ onOpenDonationWithMedicine }) {
         </div>
       </div>
 
+      {/* Role Context Strip */}
+      {user?.role === 'donor' && (
+        <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-200">
+          <div className="flex items-center space-x-2">
+            <span className="text-lg">🏥</span>
+            <span>
+              <strong>Donor Action:</strong> These are emergency medicine deficits flagged by clinics. Review requirements and click <strong>"Donate to Fulfill"</strong> to directly address shortages.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {user?.role === 'recipient' && (
+        <div className="p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center justify-between text-xs text-blue-800 dark:text-blue-200">
+          <div className="flex items-center space-x-2">
+            <span className="text-lg">🤝</span>
+            <span>
+              <strong>Clinic Shortage Alert:</strong> If a required drug is not available in the surplus catalog, click <strong>"Post Urgent Need"</strong> to notify nearby donors.
+            </span>
+          </div>
+        </div>
+      )}
+
       {message && (
         <div className={`p-4 rounded-2xl border text-xs font-semibold ${
           message.type === 'success'
