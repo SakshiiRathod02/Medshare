@@ -6,7 +6,7 @@ import './i18n.js'
 import App from './App.jsx'
 
 // Robust API Base Routing for Mobile APK & Web
-const defaultPhoneIp = 'http://192.168.1.2:5000';
+const defaultPhoneIp = 'http://192.168.1.3:5000';
 
 const originalFetch = window.fetch;
 window.fetch = async (input, init) => {

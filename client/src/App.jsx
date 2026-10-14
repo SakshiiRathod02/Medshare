@@ -122,8 +122,8 @@ function MainApp() {
           </div>
           <button
             onClick={() => {
-              const current = localStorage.getItem('medshare_api_base') || 'http://192.168.1.2:5000';
-              const input = prompt('Enter Backend Server IP or URL (e.g. http://192.168.1.2:5000):', current);
+              const current = localStorage.getItem('medshare_api_base') || 'http://192.168.1.3:5000';
+              const input = prompt('Enter Backend Server IP or URL (e.g. http://192.168.1.3:5000):', current);
               if (input && input.trim()) {
                 localStorage.setItem('medshare_api_base', input.trim().replace(/\/+$/, ''));
                 window.location.reload();

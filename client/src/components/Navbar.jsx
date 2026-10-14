@@ -105,8 +105,8 @@ export default function Navbar({
   };
 
   const handleEditServerIp = () => {
-    const current = localStorage.getItem('medshare_api_base') || 'http://192.168.1.2:5000';
-    const newIp = window.prompt('Enter Backend Server URL (e.g. http://192.168.1.2:5000):', current);
+    const current = localStorage.getItem('medshare_api_base') || 'http://192.168.1.3:5000';
+    const newIp = window.prompt('Enter Backend Server URL (e.g. http://192.168.1.3:5000):', current);
     if (newIp && newIp.trim()) {
       localStorage.setItem('medshare_api_base', newIp.trim().replace(/\/+$/, ''));
       window.location.reload();
@@ -383,7 +383,7 @@ export default function Navbar({
             >
               <span>🌐</span>
               <span className="font-mono text-[10px] max-w-[110px] truncate">
-                {(localStorage.getItem('medshare_api_base') || '192.168.1.2:5000').replace(/^https?:\/\//, '')}
+                {(localStorage.getItem('medshare_api_base') || '192.168.1.3:5000').replace(/^https?:\/\//, '')}
               </span>
             </button>
 
@@ -460,7 +460,7 @@ export default function Navbar({
                       </button>
                     </div>
                     <div className="font-mono text-[10px] text-slate-500 truncate">
-                      {localStorage.getItem('medshare_api_base') || 'http://192.168.1.2:5000'}
+                      {localStorage.getItem('medshare_api_base') || 'http://192.168.1.3:5000'}
                     </div>
                   </div>
 
